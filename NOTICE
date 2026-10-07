@@ -1,0 +1,13 @@
+This repository contains selected source files derived from NVIDIA NeMo
+AutoModel. The copied source files retain their Apache License 2.0 headers.
+See LICENSE for the license text.
+
+The retained MoE communication helper includes portions of DeepSeek DeepEP,
+which are identified in the source file and are licensed under the MIT License
+by DeepSeek; the full MIT text is in licenses/DeepEP-MIT.txt. The retained Cut Cross Entropy helper includes the Apple license
+notice in the source file; upstream acknowledgements are retained in
+licenses/Cut-Cross-Entropy-ACKNOWLEDGEMENTS.md.
+
+Qwen3.5 model snapshots, tokenizer assets, datasets, and any third-party
+runtime packages are not included in this repository and may have separate
+terms. Users must obtain and use them according to their respective licenses.

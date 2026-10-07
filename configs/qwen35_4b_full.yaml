@@ -1,0 +1,77 @@
+recipe: FinetuneRecipeForVLM
+step_scheduler:
+  global_batch_size: 8
+  local_batch_size: 1
+  ckpt_every_steps: 1
+  val_every_steps: 1
+  num_epochs: 1
+  max_steps: 1
+dist_env:
+  backend: nccl
+  timeout_minutes: 60
+model:
+  _target_: nemo_automodel.NeMoAutoModelForImageTextToText.from_pretrained
+  pretrained_model_name_or_path: Qwen/Qwen3.5-4B
+  backend:
+    _target_: nemo_automodel.components.models.common.BackendConfig
+    attn: sdpa
+    linear: torch
+    rms_norm: torch
+    rope_fusion: false
+  attn_implementation: sdpa
+  torch_dtype: bfloat16
+processor:
+  _target_: transformers.AutoProcessor.from_pretrained
+  pretrained_model_name_or_path: Qwen/Qwen3.5-4B
+  min_pixels: 12544
+  max_pixels: 50176
+checkpoint:
+  enabled: true
+  checkpoint_dir: ${oc.env:QWEN_CHECKPOINT_DIR,./runs/qwen35_4b/checkpoints}
+  model_save_format: safetensors
+  save_consolidated: false
+distributed:
+  _target_: nemo_automodel.components.distributed.fsdp2.FSDP2Manager
+  tp_size: 1
+  cp_size: 1
+  pp_size: 1
+  dp_replicate_size: 1
+  ep_size: 1
+  sequence_parallel: false
+  activation_checkpointing: true
+freeze_config:
+  freeze_vision_tower: false
+  freeze_audio_tower: false
+  freeze_language_model: false
+loss_fn:
+  _target_: nemo_automodel.components.loss.masked_ce.MaskedCrossEntropy
+dataset:
+  _target_: smoke_data.make_dataset
+  split: train
+dataloader:
+  _target_: torchdata.stateful_dataloader.StatefulDataLoader
+  num_workers: 0
+  collate_fn:
+    _target_: nemo_automodel.components.datasets.vlm.collate_fns.default_collate_fn
+    max_length: 512
+validation_dataset:
+  _target_: smoke_data.make_dataset
+  split: validation
+validation_dataloader:
+  _target_: torchdata.stateful_dataloader.StatefulDataLoader
+  num_workers: 0
+  collate_fn:
+    _target_: nemo_automodel.components.datasets.vlm.collate_fns.default_collate_fn
+    max_length: 512
+optimizer:
+  _target_: torch.optim.AdamW
+  betas: [0.9, 0.95]
+  eps: 1e-8
+  lr: 1.0e-5
+  weight_decay: 0.1
+smoke_audit:
+  enabled: true
+  require_finite_gradient: true
+  require_nonzero_gradient: true
+  require_parameter_update: true
+  min_delta: 0.0

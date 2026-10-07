@@ -1,0 +1,24 @@
+# Runtime and model artifacts
+/models/
+/runs/
+/logs/
+/data/
+/runtime/
+/submissions/
+/checkpoints/
+*.safetensors
+*.pt
+*.pth
+*.bin
+*.ckpt
+*.log
+*.jsonl
+.venv/
+.cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+validation/
+
+# Internal preparation notes are not part of the public release.
+docs/superpowers/
